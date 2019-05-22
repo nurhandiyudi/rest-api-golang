@@ -59,10 +59,8 @@ func (idb *InDB) CreatePerson(c *gin.Context) {
 		person structs.Person
 		result gin.H
 	)
-	first_name := c.PostForm("first_name")
-	last_name := c.PostForm("last_name")
-	person.First_Name = first_name
-	person.Last_Name = last_name
+	c.BindJSON(&person)
+
 	idb.DB.Create(&person)
 	result = gin.H{
 		"result": person,
