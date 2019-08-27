@@ -3,9 +3,50 @@ package controllers
 import (
 	"net/http"
 
-	"../structs"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/nurhandiyudi/rest-api-golang/structs"
 )
+
+type Credential struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (idb *InDB) loginHandler(c *gin.Context) {
+	var user Credential
+	err := c.Bind(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "can't bind struct",
+		})
+	}
+	if user.Email != "myname@gmail.com" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "wrong email or password",
+		})
+	} else {
+		if user.Password != "myname123" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "wrong email or password",
+			})
+		}
+	}
+	sign := jwt.New(jwt.GetSigningMethod("HS256"))
+	token, err := sign.SignedString([]byte("secret"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		c.Abort()
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
+}
 
 // to get one data with {id}
 func (idb *InDB) GetPerson(c *gin.Context) {
