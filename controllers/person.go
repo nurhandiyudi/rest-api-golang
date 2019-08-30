@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/nurhandiyudi/rest-api-golang/structs"
-
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/nurhandiyudi/rest-api-golang/structs"
 )
 
 type Credential struct {
@@ -13,8 +13,7 @@ type Credential struct {
 	Password string `json:"password"`
 }
 
-/*
-func (*Credential) loginHandler(c *gin.Context) {
+func loginHandler(c *gin.Context) {
 	var user Credential
 	err := c.Bind(&user)
 	if err != nil {
@@ -47,30 +46,6 @@ func (*Credential) loginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 	})
-}
-*/
-
-// to get one data with {id}
-func (idb *InDB) loginHandler(c *gin.Context) {
-	var (
-		person structs.Person
-		result gin.H
-	)
-	email := c.PostForm("email")
-	err := idb.DB.Where("email = ?", email).First(&person).Error
-	if err != nil {
-		result = gin.H{
-			"result": err.Error(),
-			"count":  0,
-		}
-	} else {
-		result = gin.H{
-			"result": person,
-			"count":  1,
-		}
-	}
-
-	c.JSON(http.StatusOK, result)
 }
 
 // to get one data with {id}
