@@ -3,9 +3,75 @@ package controllers
 import (
 	"net/http"
 
-	"../structs"
+	"github.com/nurhandiyudi/rest-api-golang/structs"
+
 	"github.com/gin-gonic/gin"
 )
+
+type Credential struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+/*
+func (*Credential) loginHandler(c *gin.Context) {
+	var user Credential
+	err := c.Bind(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "can't bind struct",
+		})
+	}
+	if user.Email != "myname@gmail.com" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "wrong email or password",
+		})
+	} else {
+		if user.Password != "myname123" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "wrong email or password",
+			})
+		}
+	}
+	sign := jwt.New(jwt.GetSigningMethod("HS256"))
+	token, err := sign.SignedString([]byte("secret"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		c.Abort()
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
+}
+*/
+
+// to get one data with {id}
+func (idb *InDB) loginHandler(c *gin.Context) {
+	var (
+		person structs.Person
+		result gin.H
+	)
+	email := c.PostForm("email")
+	err := idb.DB.Where("email = ?", email).First(&person).Error
+	if err != nil {
+		result = gin.H{
+			"result": err.Error(),
+			"count":  0,
+		}
+	} else {
+		result = gin.H{
+			"result": person,
+			"count":  1,
+		}
+	}
+
+	c.JSON(http.StatusOK, result)
+}
 
 // to get one data with {id}
 func (idb *InDB) GetPerson(c *gin.Context) {
